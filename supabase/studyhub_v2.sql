@@ -102,6 +102,36 @@ on conflict (name) do update set
  teacher_name = excluded.teacher_name, grade_level = excluded.grade_level,
  integration_status = excluded.integration_status, active = true, updated_at = now();
 
+
+-- Student platform suggestions: users can submit and read their own suggestions;
+-- only admins can review them. Approval in the app inserts the platform catalog row.
+create table if not exists public.platform_suggestions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  platform_name text not null,
+  official_url text,
+  subject text not null,
+  grade_level text not null default 'الثالث الثانوي',
+  notes text,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  admin_note text,
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz
+);
+create index if not exists platform_suggestions_status_created_idx
+  on public.platform_suggestions(status, created_at desc);
+alter table public.platform_suggestions enable row level security;
+drop policy if exists "students submit own platform suggestions" on public.platform_suggestions;
+create policy "students submit own platform suggestions" on public.platform_suggestions
+  for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists "users read own suggestions and admins read all" on public.platform_suggestions;
+create policy "users read own suggestions and admins read all" on public.platform_suggestions
+  for select to authenticated using (user_id = auth.uid() or public.is_studyhub_admin());
+drop policy if exists "admins review platform suggestions" on public.platform_suggestions;
+create policy "admins review platform suggestions" on public.platform_suggestions
+  for update to authenticated using (public.is_studyhub_admin())
+  with check (public.is_studyhub_admin());
+
 -- After creating your account, promote your own account to admin by replacing the email below:
 -- insert into public.user_roles (user_id, role)
 -- select id, 'admin' from auth.users where email = 'YOUR_LOGIN_EMAIL'
