@@ -38,3 +38,21 @@
 .danger-btn{color:#d45a67}
 button:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:720px){.top-actions{gap:6px}.platform-form{padding:16px}}
+
+/* Authentication password visibility control */
+.password-field{position:relative;display:flex;align-items:center;margin-top:7px}
+.password-field input{margin:0!important;padding-left:48px}
+.password-toggle{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:9px;background:transparent;color:var(--muted);display:grid;place-items:center}
+.password-toggle:hover{background:var(--surface2);color:var(--accent)}
+.platform-link{display:inline-flex;align-items:center;gap:5px;color:var(--accent);font-size:11px;text-decoration:none;margin-top:5px}
+.platform-link:hover{text-decoration:underline}
+.integration-note{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+:root[data-theme="light"]{
+ --bg:#f4f7fc;--surface:#fff;--surface2:#edf2fb;--text:#1e2a43;--muted:#65738c;
+ --line:#dce5f2;--accent:#5868c9;--shadow:0 16px 42px rgba(37,55,92,.08)
+}
+:root[data-theme="light"] .sidebar{background:linear-gradient(180deg,#fff 0%,#f8faff 100%)}
+:root[data-theme="light"] .stat-card,:root[data-theme="light"] .panel,:root[data-theme="light"] .platform-card,:root[data-theme="light"] .lesson-card{border-color:#e3eaf5;box-shadow:0 7px 22px rgba(41,61,99,.055)}
+:root[data-theme="light"] .welcome-card{background:linear-gradient(115deg,#40558f 0%,#586fb2 58%,#8195ce 100%)}
+:root[data-theme="light"] .primary{background:#5868c9}
+:root[data-theme="light"] .platform-card:hover,:root[data-theme="light"] .platform-card.chosen{background:#f4f6ff;border-color:#8995e1;box-shadow:0 9px 25px rgba(88,104,201,.12)}

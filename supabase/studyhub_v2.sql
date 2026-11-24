@@ -75,13 +75,32 @@ drop policy if exists "students manage own lessons" on public.user_lessons;
 create policy "students manage own lessons" on public.user_lessons
 for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
-insert into public.platform_catalog (name, subject, color)
+-- Retire placeholder/demo entries from the previous prototype without deleting user data.
+update public.platform_catalog set active = false, updated_at = now()
+where name in ('محمد صلاح', 'Dr. Clicks');
+
+-- Official platform catalog. Integration is deliberately marked unconfirmed until
+-- each provider documents or approves an API/OAuth/webhook connection.
+alter table public.platform_catalog add column if not exists url text;
+alter table public.platform_catalog add column if not exists teacher_name text;
+alter table public.platform_catalog add column if not exists grade_level text not null default 'الثالث الثانوي';
+alter table public.platform_catalog add column if not exists integration_status text not null default 'لا يوجد تكامل رسمي مؤكد';
+
+insert into public.platform_catalog (name, subject, color, url, teacher_name, grade_level, integration_status)
 values
-  ('بسطتهالك', 'اللغة العربية', '#8b7cf6'),
-  ('محمد صلاح', 'اللغة الإنجليزية', '#43b9a5'),
-  ('الجوهري', 'الأحياء', '#e5a34b'),
-  ('Dr. Clicks', 'الكيمياء', '#5799e8')
-on conflict (name) do nothing;
+ ('خالد صقر', 'الكيمياء', '#5799e8', 'https://khaled-sakr.com/userprofile/home', 'خالد صقر', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد'),
+ ('الجوهري', 'الأحياء وعلوم الأرض', '#e5a34b', 'https://ahmed-elgohary.com/userprofile/home', 'أحمد الجوهري', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد'),
+ ('بسطتهالك', 'اللغة العربية', '#8b7cf6', 'https://bassthalk.com/userprofile/home', 'محمد صلاح', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد'),
+ ('Doctor in Physics', 'الفيزياء', '#5799e8', 'https://www.doctorinphysics.com/home', 'Doctor in Physics', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد'),
+ ('عماد بدوي', 'الأحياء وعلوم الأرض', '#48a58d', 'https://emadbadawy.com/', 'عماد بدوي', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد'),
+ ('محمد عبد المعبود', 'الفيزياء', '#5799e8', 'https://latest.abdelmaaboud.com/', 'محمد عبد المعبود', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد'),
+ ('عمرو الشبراوي', 'الأحياء والعلوم المتكاملة', '#48a58d', 'https://amr-alshabrawi.com/', 'عمرو الشبراوي', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد'),
+ ('منصة القائد', 'التاريخ', '#c18a4b', 'https://elkaed.cloud/', 'مصطفى عرفة', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد'),
+ ('عبدالله فكري', 'الأحياء', '#48a58d', 'https://mrabdallahfekry.com/', 'عبدالله فكري', 'الثالث الثانوي', 'لا يوجد تكامل رسمي مؤكد')
+on conflict (name) do update set
+ subject = excluded.subject, color = excluded.color, url = excluded.url,
+ teacher_name = excluded.teacher_name, grade_level = excluded.grade_level,
+ integration_status = excluded.integration_status, active = true, updated_at = now();
 
 -- After creating your account, promote your own account to admin by replacing the email below:
 -- insert into public.user_roles (user_id, role)
